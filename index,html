@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App Fonseca</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; background: #f2f2f2; padding: 20px; }
+    .pantalla { display: none; }
+    .activa { display: block; }
+    button { padding: 10px; margin: 10px; font-size: 16px; }
+    input { padding: 10px; margin: 10px; width: 200px; }
+    .caja { background: white; padding: 15px; margin: 10px; border-radius: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA INICIO -->
+  <div id="inicio" class="pantalla activa">
+    <h2>Bienvenido</h2>
+    <button onclick="ir('bio')">Información</button>
+    <button onclick="ir('niveles')">Preguntas</button>
+    <button onclick="ir('sendero')">Senderos de Fonseca</button>
+    <button onclick="ir('rompecabezas')">Rompecabezas</button>
+  </div>
+
+  <!-- BIOGRAFÍA -->
+  <div id="bio" class="pantalla">
+    <div class="caja">
+      <h3>Biografía</h3>
+      <p>
+        Carlos Fonseca Amador fue un líder revolucionario nicaragüense y fundador del FSLN. Luchó por la justicia social y la libertad en Nicaragua.
+      </p>
+    </div>
+    <button onclick="ir('inicio')">Volver</button>
+  </div>
+
+  <!-- NIVELES -->
+  <div id="niveles" class="pantalla">
+    <h3>Selecciona nivel</h3>
+    <button onclick="nivel('facil')">Fácil</button>
+    <button onclick="nivel('medio')">Medio</button>
+    <button onclick="nivel('dificil')">Difícil</button>
+    <button onclick="ir('inicio')">Volver</button>
+  </div>
+
+  <div id="preguntas" class="pantalla">
+    <h3 id="nivelTitulo"></h3>
+    <p id="pregunta"></p>
+    <div id="respuestas"></div>
+    <button onclick="ir('inicio')">Volver al Menú</button>
+  </div>
+
+  <!-- SENDERO DE FONSECA -->
+  <div id="sendero" class="pantalla">
+    <h3>Aventura</h3>
+    <p>Estás en la montaña. ¿Qué haces?</p>
+    <button onclick="ir('sendero2')">Avanzar</button>
+    <button onclick="ir('inicio')">Salir</button>
+  </div>
+
+  <div id="sendero2" class="pantalla">
+    <p>Encuentras aliados en la montaña.</p>
+    <button onclick="ir('sendero3')">Unirte</button>
+    <button onclick="ir('inicio')">Huir</button>
+  </div>
+
+  <div id="sendero3" class="pantalla">
+    <p>Avanzas en la lucha.</p>
+    <button onclick="ir('inicio')">Volver al Menú</button>
+  </div>
+
+  <!-- ROMPECABEZAS -->
+  <div id="rompecabezas" class="pantalla">
+    <h3>Rompecabezas</h3>
+    <p>Ordena la frase correcta:</p>
+    <p id="frase">Carlos Fonseca fue un líder.</p>
+    <button onclick="respuestaR(false)">Fonseca Carlos líder</button>
+    <button onclick="respuestaR(true)">Carlos Fonseca líder</button>
+    <br>
+    <button onclick="ir('inicio')">Volver al Menú</button>
+  </div>
+
+  <script>
+    // Función para cambiar de pantallas
+    function ir(pantalla) {
+      document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+      document.getElementById(pantalla).classList.add('activa');
+    }
+
+    // Datos de preguntas
+    let preguntasData = {
+      facil: [
+        ["¿Quién fue Carlos Fonseca?", ["Líder", "Doctor"], 0],
+        ["¿De qué país era?", ["Nicaragua", "México"], 0],
+        ["¿Qué fundó?", ["FSLN", "ONU"], 0],
+        ["¿Luchó por justicia?", ["Sí", "No"], 0],
+        ["¿Es héroe?", ["Sí", "No"], 0]
+      ],
+      medio: [
+        ["¿En qué año murió?", ["1976", "1985"], 0],
+        ["¿Dónde luchó?", ["Montañas", "Mar"], 0],
+        ["¿Fue revolucionario?", ["Sí", "No"], 0],
+        ["¿Defendía justicia?", ["Sí", "No"], 0],
