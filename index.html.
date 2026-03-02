@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carlos Fonseca: El Juego Histórico</title>
+    <style>
+        :root { --rojo: #ce1126; --negro: #000000; --gris: #1a1a1a; --blanco: #ffffff; }
+        body { font-family: 'Arial', sans-serif; margin: 0; background: var(--negro); color: var(--blanco); text-align: center; overflow-x: hidden; }
+        
+        /* Contenedores de Pantalla */
+        .pantalla { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
+        .activa { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        /* Imágenes y Tarjetas */
+        .img-juego { width: 100%; max-width: 400px; border: 3px solid var(--rojo); border-radius: 10px; margin: 15px 0; box-shadow: 0 0 15px var(--rojo); }
+        .card { background: var(--gris); padding: 20px; border-radius: 15px; border-top: 5px solid var(--rojo); max-width: 500px; margin: 10px auto; }
+        
+        /* Botones */
+        .btn { background: var(--rojo); color: white; border: none; padding: 15px; margin: 8px auto; border-radius: 5px; cursor: pointer; font-weight: bold; width: 90%; max-width: 300px; display: block; text-transform: uppercase; transition: 0.2s; }
+        .btn:hover { background: #900; transform: scale(1.02); }
+        .btn-volver { background: #444; margin-top: 20px; }
+
+        /* Trivia y Puzzle */
+        .opcion-viva { background: #222; padding: 12px; margin: 10px; border-radius: 8px; cursor: pointer; border: 1px solid var(--rojo); }
+        .opcion-viva:hover { background: var(--rojo); }
+        #contenedor-puzzle { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; }
+        .pieza { background: var(--rojo); padding: 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #resultado-puzzle { border: 2px dashed var(--rojo); min-height: 50px; padding: 15px; margin: 15px 0; font-size: 1.2em; background: #111; }
+    </style>
+</head>
+<body>
+
+    <div id="menu" class="pantalla activa">
+        <h1>CARLOS FONSECA</h1>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Carlos_Fonseca_Amador.jpg" class="img-juego">
+        <div class="card">
+            <p>Selecciona un nivel de Trivia:</p>
+            <button class="btn" onclick="iniciarTrivia('facil')">🟢 NIVEL FÁCIL</button>
+            <button class="btn" onclick="iniciarTrivia('medio')">🟡 NIVEL MEDIO</button>
+            <button class="btn" onclick="iniciarTrivia('dificil')">🔴 NIVEL DIFÍCIL</button>
+            <hr style="border: 0.5px solid #333;">
+            <button class="btn" onclick="navegar('senderos')">🏔️ SENDEROS (HISTORIA)</button>
+            <button class="btn" onclick="iniciarPuzzle()">🧩 ROMPECABEZAS</button>
+        </div>
+    </div>
+
+    <div id="pantalla-trivia" class="pantalla">
+        <h2 id="trivia-titulo">Cargando...</h2>
+        <div class="card">
+            <p id="pregunta-texto" style="font-size: 1.2em; min-height: 50px;"></p>
+            <div id="opciones-contenedor"></div>
+        </div>
+        <button class="btn btn-volver" onclick="navegar('menu')">ABANDONAR</button>
+    </div>
+
+    <div id="senderos" class="pantalla">
+        <h2>SENDEROS DE ZINICA</h2>
+        <img src="https://viva-nicaragua.imgix.net/2020/11/comandante-carlos-fonseca-amador-revolucion.jpg" class="img-juego">
+        <div class="card">
+            <p id="historia-texto">Estás en la montaña. Carlos Fonseca te entrega un fusil y un libro. ¿Qué haces primero?</p>
+            <div id="historia-opciones">
+                <button class="btn" onclick="historia(1)">Organizar una clase de lectura</button>
+                <button class="btn" onclick="historia(2)">Explorar la ruta hacia el campamento</button>
+            </div>
+        </div>
+        <button class="btn btn-volver" onclick="navegar('menu')">VOLVER AL INICIO</button>
+    </div>
+
+    <div id="rompecabezas" class="pantalla">
+        <h2>PUZZLE DE FRASES</h2>
+        <div class="card">
+            <p>Toca las palabras en el orden correcto para completar la misión:</p>
+            <div id="contenedor-puzzle"></div>
+            <div id="resultado-puzzle"></div>
+            <button class="btn" style="background:green; display:none;" id="btn-verificar-p" onclick="verificarPuzzle()">VERIFICAR ORDEN</button>
+            <button class="btn btn-volver" onclick="limpiarPuzzle()">REINTENTAR</button>
+        </div>
+        <button class="btn btn-volver" onclick="navegar('menu')">MENÚ</button>
+    </div>
+
+    <script>
+        // DATOS DE LAS 15 PREGUNTAS (5 POR NIVEL)
+        const preguntas = {
+            facil: [
+                { p: "¿En qué país nació Carlos Fonseca?", o: ["Nicaragua", "España", "Honduras"], c: 0 },
+                { p: "¿En qué departamento nació?", o: ["Managua", "Matagalpa", "Chontales"], c: 1 },
+                { p: "¿Cuál es el color de su bandera?", o: ["Verde y Blanco", "Rojo y Negro", "Amarillo"], c: 1 },
+                { p: "¿Cómo lo llama el pueblo?", o: ["El Rey", "Padre de la Revolución", "El General"], c: 1 },
+                { p: "¿A quiénes mandó a enseñar a leer?", o: ["A los campesinos", "A los extranjeros", "A nadie"], c: 0 }
+            ],
+            medio: [
+                { p: "¿En qué año nació?", o: ["1936", "1950", "1920"], c: 0 },
+                { p: "¿Qué movimiento fundó en 1961?", o: ["FSLN", "UNO", "PLC"], c: 0 },
+                { p: "¿Cómo se llamaba su madre?", o: ["Agustina Amador", "Blanca Arauz", "Josefa"], c: 0 },
+                { p: "¿Qué profesión tenía?", o: ["Ingeniero", "Profesor e Intelectual", "Comerciante"], c: 1 },
+                { p: "¿Cuál era su seudónimo en la guerrilla?", o: ["Danto", "Agatón", "Modesto"], c: 1 }
+            ],
+            dificil: [
+                { p: "¿En qué lugar cayó en combate en 1976?", o: ["Boca de Piedra, Zinica", "Pancasán", "Monimbó"], c: 0 },
+                { p: "¿Qué libro escribió sobre su viaje?", o: ["Azul", "Un Nicaragüense en Moscú", "La Montaña"], c: 1 },
+                { p: "¿En qué mes se conmemora su tránsito a la inmortalidad?", o: ["Noviembre", "Julio", "Septiembre"], c: 0 },
+                { p: "¿Dónde realizó sus estudios secundarios?", o: ["Instituto de Matagalpa", "Ramírez Goyena", "UCA"], c: 0 },
+                { p: "¿A qué prócer rescató históricamente?", o: ["Rubén Darío", "A.C. Sandino", "José Dolores Estrada"], c: 1 }
+            ]
+        };
+
+        let nivelActual = "";
+        let preguntaActual = 0;
+
+        function navegar(id) {
+            document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+            document.getElementById(id).classList.add('activa');
+        }
+
+        // LÓGICA TRIVIA
+        function iniciarTrivia(nivel) {
+            nivelActual = nivel;
+            preguntaActual = 0;
+            navegar('pantalla-trivia');
+            mostrarPregunta();
+        }
+
+        function mostrarPregunta() {
+            let datos = preguntas[nivelActual][preguntaActual];
+            document.getElementById("trivia-titulo").innerText = "NIVEL " + nivelActual.toUpperCase();
+            document.getElementById("pregunta-texto").innerText = (preguntaActual + 1) + ". " + datos.p;
+            let cont = document.getElementById("opciones-contenedor");
+            cont.innerHTML = "";
+            datos.o.forEach((opc, i) => {
+                let div = document.createElement("div");
+                div.className = "opcion-viva";
+                div.innerText = opc;
+                div.onclick = () => {
+                    if(i === datos.c) {
+                        preguntaActual++;
+                        if(preguntaActual < 5) {
+                            alert("¡CORRECTO! Vamos a la siguiente.");
+                            mostrarPregunta();
+                        } else {
+                            alert("¡EXCELENTE! Has superado este nivel.");
+                            navegar('menu');
+                        }
+                    } else {
+                        alert("ERROR. Regresas al inicio del nivel para reforzar tu conocimiento.");
+                        preguntaActual = 0;
+                        mostrarPregunta();
+                    }
+                };
+                cont.appendChild(div);
+            });
+        }
+
+        // LÓGICA SENDEROS
+        function historia(paso) {
+            let txt = document.getElementById("historia-texto");
+            let btnCont = document.getElementById("historia-opciones");
+            if(paso === 1) {
+                txt.innerText = "¡Gran elección! Carlos sonríe y dice: 'También enséñenles a leer'. Un campesino se acerca agradecido. ¿Qué le enseñas?";
+                btnCont.innerHTML = `<button class="btn" onclick="historia(3)">El abecedario</button>
+                                     <button class="btn" onclick="historia(3)">Historia de Sandino</button>`;
+            } else if(paso === 2) {
+                txt.innerText = "Has encontrado una patrulla de la guardia. Debes decidir rápido para proteger al Comandante.";
+                btnCont.innerHTML = `<button class="btn" onclick="historia(3)">Crear una distracción</button>
+                                     <button class="btn" onclick="historia(3)">Retirada estratégica</button>`;
+            } else {
+                alert("Has completado este capítulo de la historia con valor.");
+                navegar('menu');
+            }
+        }
+
+        // LÓGICA PUZZLE
+        let fraseOriginal = ["TAMBIÉN", "ENSÉÑENLES", "A", "LEER"];
+        let fraseUsuario = [];
+
+        function iniciarPuzzle() {
+            navegar('rompecabezas');
+            limpiarPuzzle();
+        }
+
+        function limpiarPuzzle() {
+            fraseUsuario = [];
+            document.getElementById("resultado-puzzle").innerText = "";
+            document.getElementById("btn-verificar-p").style.display = "none";
+            let cont = document.getElementById("contenedor-puzzle");
+            cont.innerHTML = "";
+            let desordenada = [...fraseOriginal].sort(() => Math.random() - 0.5);
+            desordenada.forEach(pal => {
+                let span = document.createElement("span");
+                span.className = "pieza";
+                span.innerText = pal;
+                span.onclick = () => {
+                    fraseUsuario.push(pal);
+                    document.getElementById("resultado-puzzle").innerText = fraseUsuario.join(" ");
+                    span.style.visibility = "hidden";
+                    if(fraseUsuario.length === 4) document.getElementById("btn-verificar-p").style.display = "block";
+                };
+                cont.appendChild(span);
+            });
+        }
+
+        function verificarPuzzle() {
+            if(fraseUsuario.join(" ") === fraseOriginal.join(" ")) {
+                alert("¡LO LOGRASTE! 'También enséñenles a leer'.");
+                navegar('menu');
+            } else {
+                alert("Orden incorrecto. La frase no rima con la historia. Intenta de nuevo.");
+                limpiarPuzzle();
+            }
+        }
+    </script>
+</body>
+</html>
