@@ -43,12 +43,4 @@
             <hr style="border: 0.5px solid #333;">
             <button class="btn" onclick="navegar('senderos')">🏔️ SENDEROS (HISTORIA)</button>
             <button class="btn" onclick="iniciarPuzzle()">🧩 ROMPECABEZAS</button>
-        </div>
-    </div>
-
-    <div id="pantalla-trivia" class="pantalla">
-        <h2 id="trivia-titulo">Cargando...</h2>
-        <div class="card">
-            <p id="pregunta-texto" style="font-size: 1.2em; min-height: 50px;"></p>
-            <div id="opciones-contenedor"></div>
-        </div>
+        </div
